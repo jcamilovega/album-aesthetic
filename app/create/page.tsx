@@ -1,69 +1,100 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from '../lib/supabase';
 
 export default function CreatePage() {
   const [images, setImages] = useState<File[]>([]);
+  const router = useRouter();
+
+  const saveBook = async () => {
+  const { data, error } = await supabase
+    .from('books')
+    .insert([
+      {
+        title: 'Mi AdventureBook',
+        images: images
+      }
+    ])
+    .select();
+
+  if (error) {
+    console.error(error);
+    alert('Error guardando libro');
+    return;
+  }
+
+  alert('Libro guardado 🎉');
+  console.log(data);
+};
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
     const files = Array.from(e.target.files);
 
-    if (images.length + files.length > 40) {
-      alert("Máximo 40 fotos permitidas");
+    if (files.length + images.length > 40) {
+      alert("Máximo 40 fotos");
       return;
     }
+
+    <button
+  onClick={() => {
+    localStorage.setItem("albumImages", JSON.stringify(images));
+    router.push("/preview");
+  }}
+  className="mt-6 bg-black text-white px-6 py-3 rounded-xl"
+>
+  Crear preview
+</button>
 
     setImages((prev) => [...prev, ...files]);
   };
 
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  <button
+  onClick={saveBook}
+  className="mt-6 bg-black text-white px-6 py-3 rounded-xl hover:opacity-80 transition"
+>
+  Guardar AdventureBook
+</button>
 
   return (
-    <main className="min-h-screen bg-neutral-100 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Sube tus fotos para tu AdventureBook
-      </h1>
+    <main className="min-h-screen bg-neutral-100 p-10">
+      <h1 className="text-3xl font-bold mb-6">Crea tu AdventureBook</h1>
 
-      <div className="max-w-2xl mx-auto">
+      {/* INPUT OCULTO */}
+      <label className="inline-block cursor-pointer">
         <input
           type="file"
           multiple
           accept="image/*"
           onChange={handleUpload}
-          className="mb-6"
+          className="hidden"
         />
 
-        <p className="mb-4 text-gray-600">
-          {images.length} / 40 fotos
-        </p>
+        <span className="bg-black text-white px-6 py-3 rounded-xl hover:opacity-80 transition">
+          Subir fotos
+        </span>
+      </label>
 
-        <div className="grid grid-cols-3 gap-4">
-          {images.map((file, index) => (
-            <div key={index} className="relative">
-              <img
-                src={URL.createObjectURL(file)}
-                alt="preview"
-                className="w-full h-40 object-cover rounded-lg"
-              />
-              <button
-                onClick={() => removeImage(index)}
-                className="absolute top-1 right-1 bg-black text-white text-xs px-2 py-1 rounded"
-              >
-                X
-              </button>
-            </div>
-          ))}
-        </div>
+      <p className="mt-4 mb-6 text-gray-600">
+        {images.length} / 40 fotos seleccionadas
+      </p>
 
-        {images.length > 0 && (
-          <button className="mt-8 w-full bg-black text-white py-3 rounded-xl">
-            Continuar
-          </button>
-        )}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {images.map((file, index) => (
+          <div
+            key={index}
+            className="aspect-square bg-white rounded-xl overflow-hidden shadow"
+          >
+            <img
+              src={URL.createObjectURL(file)}
+              alt="preview"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
       </div>
     </main>
   );
