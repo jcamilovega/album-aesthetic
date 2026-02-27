@@ -2,30 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from '../lib/supabase';
+import { supabase } from "../../lib/supabase";
 
 export default function CreatePage() {
   const [images, setImages] = useState<File[]>([]);
   const router = useRouter();
 
   const saveBook = async () => {
+  const imageNames = images.map((file) => file.name);
+
   const { data, error } = await supabase
-    .from('books')
+    .from("books")
     .insert([
       {
-        title: 'Mi AdventureBook',
-        images: images
-      }
+        title: "Mi AdventureBook",
+        images: imageNames, // ahora solo strings
+      },
     ])
     .select();
 
   if (error) {
-    console.error(error);
-    alert('Error guardando libro');
+    console.error("Supabase error:", error);
+    alert("Error guardando libro");
     return;
   }
 
-  alert('Libro guardado 🎉');
+  alert("Libro guardado 🎉");
   console.log(data);
 };
 
@@ -39,31 +41,13 @@ export default function CreatePage() {
       return;
     }
 
-    <button
-  onClick={() => {
-    localStorage.setItem("albumImages", JSON.stringify(images));
-    router.push("/preview");
-  }}
-  className="mt-6 bg-black text-white px-6 py-3 rounded-xl"
->
-  Crear preview
-</button>
-
     setImages((prev) => [...prev, ...files]);
   };
-
-  <button
-  onClick={saveBook}
-  className="mt-6 bg-black text-white px-6 py-3 rounded-xl hover:opacity-80 transition"
->
-  Guardar AdventureBook
-</button>
 
   return (
     <main className="min-h-screen bg-neutral-100 p-10">
       <h1 className="text-3xl font-bold mb-6">Crea tu AdventureBook</h1>
 
-      {/* INPUT OCULTO */}
       <label className="inline-block cursor-pointer">
         <input
           type="file"
@@ -72,7 +56,6 @@ export default function CreatePage() {
           onChange={handleUpload}
           className="hidden"
         />
-
         <span className="bg-black text-white px-6 py-3 rounded-xl hover:opacity-80 transition">
           Subir fotos
         </span>
@@ -96,6 +79,25 @@ export default function CreatePage() {
           </div>
         ))}
       </div>
+
+      {/* BOTÓN PREVIEW */}
+      <button
+        onClick={() => {
+          localStorage.setItem("albumImages", JSON.stringify(images));
+          router.push("/preview");
+        }}
+        className="mt-6 mr-4 bg-gray-700 text-white px-6 py-3 rounded-xl"
+      >
+        Crear preview
+      </button>
+
+      {/* BOTÓN GUARDAR */}
+      <button
+        onClick={saveBook}
+        className="mt-6 bg-black text-white px-6 py-3 rounded-xl hover:opacity-80 transition"
+      >
+        Guardar AdventureBook
+      </button>
     </main>
   );
 }
