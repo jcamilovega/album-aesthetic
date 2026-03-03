@@ -16,7 +16,8 @@ export default function CreatePage() {
     .insert([
       {
         title: "Mi AdventureBook",
-        images: imageNames, // ahora solo strings
+        images: imageNames,
+        paid: false, // importante para después validar pago
       },
     ])
     .select();
@@ -27,8 +28,13 @@ export default function CreatePage() {
     return;
   }
 
-  alert("Libro guardado 🎉");
-  console.log(data);
+  const bookId = data[0].id; // 👈 AQUÍ obtienes el ID real del libro
+
+  // 🔥 Redirigir a Wompi con referencia
+  const wompiLink = "PEGA_AQUI_TU_LINK_GENERICO_SANDBOX";
+
+  window.location.href = `${wompiLink}?reference=${bookId}`;
+
 };
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,14 +95,6 @@ export default function CreatePage() {
         className="mt-6 mr-4 bg-gray-700 text-white px-6 py-3 rounded-xl"
       >
         Crear preview
-      </button>
-
-      {/* BOTÓN GUARDAR */}
-      <button
-        onClick={saveBook}
-        className="mt-6 bg-black text-white px-6 py-3 rounded-xl hover:opacity-80 transition"
-      >
-        Guardar AdventureBook
       </button>
     </main>
   );
