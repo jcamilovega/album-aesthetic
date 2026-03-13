@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabase";
 export default function SuccessContent() {
   const searchParams = useSearchParams();
   const transactionId = searchParams.get("id");
+  const bookId = searchParams.get("bookId");
 
   const [status, setStatus] = useState("Validando pago...");
 
@@ -38,9 +39,9 @@ export default function SuccessContent() {
           const bookId = books[0].id;
 
           const { error: updateError } = await supabase
-            .from("books")
-            .update({ paid: true })
-            .eq("id", bookId);
+          .from("books")
+          .update({ paid: true })
+          .eq("id", bookId);
 
           if (updateError) {
             setStatus("Error actualizando el pago.");
